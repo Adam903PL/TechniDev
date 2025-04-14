@@ -19,7 +19,7 @@ const _layout = () => {
       }}
     >
       <Tabs.Screen
-        name="JoinDev"
+        name="login"
         options={{
           title: "JoinDev",
           headerShadowVisible:false,

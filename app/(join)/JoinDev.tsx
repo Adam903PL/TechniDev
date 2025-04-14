@@ -30,8 +30,8 @@ interface FormType {
 
 const JoinDev = () => {
   const [currentSkill, setCurrentSkill] = useState("");
-  const { addDeveloper } = useData();
-  
+  const { addDeveloper,checkIsDeveloper } = useData();
+  const navigation = useNavigation();
   const {
     control,
     handleSubmit,
@@ -67,12 +67,20 @@ const JoinDev = () => {
 
   const onSubmit = (data: FormType) => {
     console.log("Submitted data:", data);
+
+    const isDeveloper = checkIsDeveloper(data.email)
+
+    if(isDeveloper){
+      Alert.alert("Fails", "Your are already a developer!");
+      return
+    }
+
     addDeveloper(data);
     Alert.alert("Success", "Your profile has been created!");
     navigation.goBack();
   };
 
-  const navigation = useNavigation();
+
 
   return (
     <SafeAreaView className="flex-1 bg-zinc-900">

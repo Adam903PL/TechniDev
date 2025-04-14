@@ -2,7 +2,7 @@ import  {create} from "zustand"
 
 export const data = [
   {
-    id: "1",
+    id: "28c7e3d8-2e72-43a7-a5bf-eb5107cd556d",
     name: "Alice Johnson",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
     bio: "Software engineer with a passion for mobile apps and AI.",
@@ -16,7 +16,7 @@ export const data = [
     ],
   },
   {
-    id: "2",
+    id: "f4b34a3a-cee8-42ef-ba06-caeb5bc147da",
     name: "Bob Smith",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
     bio: "Frontend developer and open source contributor.",
@@ -30,7 +30,7 @@ export const data = [
     ],
   },
   {
-    id: "3",
+    id: "07b50773-f86e-400a-9397-ec6fabecf867",
     name: "Charlie Brown",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
     bio: "Backend developer working with cloud technologies.",
@@ -44,7 +44,7 @@ export const data = [
     ],
   },
   {
-    id: "4",
+    id: "be388ee9-b0e4-40c7-bc46-38150d44283b",
     name: "David Lee",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
     bio: "Full-stack developer passionate about machine learning.",
@@ -58,7 +58,7 @@ export const data = [
     ],
   },
   {
-    id: "5",
+    id: "108d2885-c919-4891-8785-cc33a6823ece",
     name: "Eva Green",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
     bio: "UX/UI designer focused on user experience optimization.",
@@ -92,8 +92,9 @@ interface DataType {
 
 type NewDeveloper = Omit<DataType, "id">;
 interface DataTypeSate {
-    getData:DataType[]
-    addDeveloper:(data:NewDeveloper) =>void
+    getData:DataType[];
+    addDeveloper:(data:NewDeveloper) =>void;
+    checkIsDeveloper:(email:DataType["email"]) => boolean  
 }
 
 
@@ -109,4 +110,11 @@ export const useData = create<DataTypeSate>((set,get)=>({
         getData: [...state.getData, newDeveloper],
       }));
     },
+    checkIsDeveloper: (email) => {
+      const user = data.find((user)=>user.email === email)
+      if(!user){
+        return false
+      }
+      return true
+    }
 }))

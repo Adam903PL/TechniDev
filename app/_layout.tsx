@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import "./globals.css";
 import { StatusBar } from "react-native";
 
@@ -14,8 +14,16 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+
         <Stack.Screen
           name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="(home)/index"
           options={{
             headerShown: false,
           }}
@@ -26,7 +34,14 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="(auth)"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
+      <Redirect href="/(auth)/login" />
     </>
   );
 }
