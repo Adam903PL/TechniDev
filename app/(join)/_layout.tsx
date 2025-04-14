@@ -32,9 +32,9 @@ const _layout = () => {
       }}
     >
       <Tabs.Screen
-        name="Details"
+        name="JoinDev"
         options={{
-          title: "Details",
+          title: "JoinDev",
           headerShadowVisible:false,
           headerShown:false,
           tabBarShowLabel:false
