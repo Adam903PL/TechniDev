@@ -1,20 +1,7 @@
 import  {create} from "zustand"
 
 export const data = [
-  {
-    id: "28c7e3d8-2e72-43a7-a5bf-eb5107cd556d",
-    name: "Alice Johnson",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s",
-    bio: "Software engineer with a passion for mobile apps and AI.",
-    phone: "123-456-7890",
-    email: "alice.johnson@example.com",
-    joined: "2024-01-15",
-    skills: [
-      { skill: "React Native" },
-      { skill: "Python" },
-      { skill: "Machine Learning" },
-    ],
-  },
+
   {
     id: "f4b34a3a-cee8-42ef-ba06-caeb5bc147da",
     name: "Bob Smith",
@@ -90,7 +77,7 @@ interface DataType {
     skills:Skills[]
 }
 
-type NewDeveloper = Omit<DataType, "id">;
+type NewDeveloper = DataType
 interface DataTypeSate {
     getData:DataType[];
     addDeveloper:(data:NewDeveloper) =>void;
@@ -101,13 +88,9 @@ interface DataTypeSate {
 export const useData = create<DataTypeSate>((set,get)=>({
     getData: data,
     addDeveloper: (newDev) => {
-      const newDeveloper: DataType = {
-        id: Math.random().toString(36).substring(2, 9), 
-        ...newDev,
-      };
-  
+
       set((state) => ({
-        getData: [...state.getData, newDeveloper],
+        getData: [...state.getData, newDev],
       }));
     },
     checkIsDeveloper: (email) => {

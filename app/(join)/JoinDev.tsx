@@ -7,18 +7,20 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Controller, useForm } from "react-hook-form";
 //@ts-ignore
 import { MaterialIcons } from "react-native-vector-icons";
 import { useData } from "@/hooks/useData";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from "expo-router";
 interface Skills {
   skill: string;
 }
 
 interface FormType {
+  id:string
   name: string;
   avatar: string;
   bio: string;
@@ -32,6 +34,28 @@ const JoinDev = () => {
   const [currentSkill, setCurrentSkill] = useState("");
   const { addDeveloper,checkIsDeveloper } = useData();
   const navigation = useNavigation();
+  const [userId,setUserId] = useState("")
+  const router = useRouter()
+
+  const resetApp = async () => {
+    await AsyncStorage.clear();
+    // Możesz też zresetować swój kontekst/Redux
+    router.replace('/'); // wróć do ekranu startowego
+  };
+
+
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const userId = await AsyncStorage.getItem("userId");
+      if (userId) {
+        setUserId(userId);
+      }
+    };
+
+    getUserId();
+  }, []);
+
   const {
     control,
     handleSubmit,
@@ -40,6 +64,7 @@ const JoinDev = () => {
     watch,
   } = useForm<FormType>({
     defaultValues: {
+      id:userId,
       name: "",
       avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s", 
       bio: "",
@@ -77,6 +102,7 @@ const JoinDev = () => {
 
     addDeveloper(data);
     Alert.alert("Success", "Your profile has been created!");
+    resetApp()
     navigation.goBack();
   };
 

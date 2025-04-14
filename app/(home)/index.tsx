@@ -8,17 +8,31 @@ import {
   StatusBar,
   TextInput,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useData } from "@/hooks/useData";
 
 export default function Index() {
   const [selectedId, setSelectedId] = useState(null);
-  const { getData } = useData();
+  const { getData, checkIsDeveloper } = useData();
   const [developers, setDevelopers] = useState(getData);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeveloper, setisDeveloper] = useState(false);
+  const navigate = useNavigation();
+  useEffect(() => {
+    const getUserID = async () => {
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) return;
+      const isDev = checkIsDeveloper(userId);
+      console.log(isDev)
+      setisDeveloper(isDev);
+    };
+
+    getUserID();
+  }, []);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState([]);
@@ -108,21 +122,34 @@ export default function Index() {
     );
   };
 
-  const handleSearch = (text:any) => {
+  const handleSearch = (text: any) => {
     setSearchQuery(text);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("userId");
+    setisDeveloper(false);
+    navigate.navigate("(auth)");
   };
 
   return (
     <SafeAreaView className="flex-1 bg-zinc-900">
       <StatusBar barStyle="light-content" />
       <View className="flex-1 px-4 pt-6">
-        <View className="items-center mb-8">
-          <Text className="text-purple-400 text-4xl font-bold">
-            Dev<Text className="text-white">Network</Text>
-          </Text>
-          <Text className="text-gray-400 mt-2">
-            Connect with fellow developers
-          </Text>
+        <View className="flex-row items-center justify-between mb-8">
+          <View>
+            <Text className="text-purple-400 text-4xl font-bold">
+              Dev<Text className="text-white">Network</Text>
+            </Text>
+            <Text className="text-gray-400 mt-2">
+              Connect with fellow developers
+            </Text>
+          </View>
+
+          {/* Przycisk Logout */}
+          <TouchableOpacity onPress={handleLogout}>
+            <Text className="text-purple-400 text-sm">Logout</Text>
+          </TouchableOpacity>
         </View>
 
         <View className="bg-zinc-800 rounded-xl p-3 mb-4 flex-row items-start justify-between">
@@ -134,16 +161,30 @@ export default function Index() {
               Tap on a profile to view more details
             </Text>
           </View>
-          <Link href="/(join)/JoinDev">
+
+          {!isDeveloper ? (
+            <Link href="/(join)/JoinDev">
+              <View className="items-end">
+                <Text className="text-xs text-gray-400 text-right mb-1">
+                  Want to join as
+                </Text>
+                <Text className="text-xs font-semibold text-purple-400 text-right">
+                  a developer?
+                </Text>
+              </View>
+            </Link>
+          ) : (
             <View className="items-end">
               <Text className="text-xs text-gray-400 text-right mb-1">
-                Want to join as
+                You are a developer.
               </Text>
-              <Text className="text-xs font-semibold text-purple-400 text-right">
-                a developer?
-              </Text>
+              <TouchableOpacity onPress={() => {}}>
+                <Text className="text-xs font-semibold text-red-400 text-right">
+                  Cancel developer status?
+                </Text>
+              </TouchableOpacity>
             </View>
-          </Link>
+          )}
         </View>
 
         <View className="flex-row items-center bg-zinc-800 rounded-xl px-4 py-2 mb-4">

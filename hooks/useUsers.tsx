@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const data = [
   {
@@ -25,25 +26,65 @@ export const data = [
     id: "108d2885-c919-4891-8785-cc33a6823ece",
     email: "eva.green@example.com",
     password: "password123",
-    
   },
 ];
 
-interface DataType {
+interface User {
   id: string;
   email: string;
   password: string;
 }
 
-interface DataTypeState {
-  login: (credentials: Omit<DataType, "id">) => boolean;
+interface UsersState {
+  currentUser: User | null;
+  login: (credentials: Omit<User, "id">) => string | false;
+  logout: () => Promise<void>;
+  checkAuthStatus: () => Promise<boolean>;
 }
 
-export const useUsers = create<DataTypeState>(() => ({
+export const useUsers = create<UsersState>((set) => ({
+  currentUser: null,
+  
   login: ({ email, password }) => {
     const user = data.find(
       (user) => user.email === email && user.password === password
     );
-    return !!user;
+    
+    if (user) {
+      set({ currentUser: user });
+      return user.id;
+    }
+    
+    return false;
   },
+  
+  logout: async () => {
+    try {
+      // Clear all auth data from AsyncStorage
+      await AsyncStorage.multiRemove(['userId', 'userEmail', 'isLoggedIn']);
+      set({ currentUser: null });
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  },
+  
+  checkAuthStatus: async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      const userEmail = await AsyncStorage.getItem('userEmail');
+      
+      if (userId && userEmail) {
+        const user = data.find(user => user.id === userId);
+        if (user) {
+          set({ currentUser: user });
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      return false;
+    }
+  }
 }));

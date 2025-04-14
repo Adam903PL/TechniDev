@@ -1,10 +1,11 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useUsers } from "@/hooks/useUsers";
 import { useNavigation } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface LoginForm {
   email: string;
@@ -13,7 +14,7 @@ interface LoginForm {
 
 const Login = () => {
   const { login } = useUsers();
-  const navigate = useNavigation();
+  const navigation = useNavigation();
   const {
     control,
     handleSubmit,
@@ -25,13 +26,47 @@ const Login = () => {
     },
   });
 
-  const onSubmit = (data: LoginForm) => {
-    const resp = login({ email: data.email, password: data.password });
-    if (resp) {
-      Alert.alert("Login Success", `Welcome, ${data.email}`);
-      navigate.navigate("(home)/index");
-    } else {
-      Alert.alert("Login Failed", "Invalid email or password");
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const userId = await AsyncStorage.getItem('userId');
+        const userEmail = await AsyncStorage.getItem('userEmail');
+        
+        if (userId && userEmail) {
+
+          console.log('User already logged in:', userEmail);
+          navigation.navigate("(home)/index");
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+    
+    checkLoginStatus();
+  }, [navigation]);
+
+  const onSubmit = async (data: LoginForm) => {
+    try {
+      const userId = login({ email: data.email, password: data.password });
+      
+      if (userId && typeof userId === 'string') {
+
+        await AsyncStorage.setItem('userId', userId);
+        await AsyncStorage.setItem('userEmail', data.email);
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        
+        console.log('Login data saved to AsyncStorage');
+        Alert.alert("Login Success", `Welcome, ${data.email}`);
+        
+        // Navigate to home screen
+        navigation.navigate("(home)/index");
+      } else {
+        Alert.alert("Login Failed", "Invalid email or password");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert("Login Error", "An unexpected error occurred");
     }
   };
 
@@ -66,6 +101,7 @@ const Login = () => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
+                autoCapitalize="none"
               />
             )}
           />
