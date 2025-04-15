@@ -6,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useUsers } from "@/hooks/useUsers";
 import { useNavigation } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppStore } from "@/hooks/useAppStore";
 
 interface LoginForm {
   email: string;
@@ -13,7 +14,7 @@ interface LoginForm {
 }
 
 const Login = () => {
-  const { login } = useUsers();
+  const { login } = useAppStore();
   const navigation = useNavigation();
   const {
     control,

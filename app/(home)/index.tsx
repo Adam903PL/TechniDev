@@ -7,32 +7,48 @@ import {
   SafeAreaView,
   StatusBar,
   TextInput,
+  Modal,
+  Alert,
+  Pressable,
 } from "react-native";
 import { Link, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { useData } from "@/hooks/useData";
+
+import IndexModal from "@/components/IndexModal";
+import { useAppStore } from "@/hooks/useAppStore";
 
 export default function Index() {
   const [selectedId, setSelectedId] = useState(null);
-  const { getData, checkIsDeveloper } = useData();
+  const { getData } = useAppStore();
   const [developers, setDevelopers] = useState(getData);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeveloper, setisDeveloper] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+
   const navigate = useNavigation();
+
   useEffect(() => {
     const getUserID = async () => {
       const userId = await AsyncStorage.getItem("userId");
       if (!userId) return;
-      const isDev = checkIsDeveloper(userId);
-      console.log(isDev)
-      setisDeveloper(isDev);
+      const isDev = getData.find((user) => user.id === userId);
+      console.log(isDev, userId, getData, "powinnien być");
+      if (isDev) {
+        console.log(isDev);
+        setisDeveloper(true);
+      }
     };
 
     getUserID();
-  }, []);
+  }, [getData]);
+
+  useEffect(()=>(
+    setDevelopers(getData)
+  ),[getData])
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState([]);
@@ -67,11 +83,17 @@ export default function Index() {
     setDevelopers(filteredDevs);
   }, [searchQuery, value, open]);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }:any) => {
     const isSelected = item.id === selectedId;
 
     return (
       <View className="px-2 mb-4 w-1/2">
+
+        <IndexModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+        />
+
         <Link
           href={{ pathname: "/(tabs)/Details", params: { id: item.id } }}
           asChild
@@ -178,7 +200,11 @@ export default function Index() {
               <Text className="text-xs text-gray-400 text-right mb-1">
                 You are a developer.
               </Text>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(true);
+                }}
+              >
                 <Text className="text-xs font-semibold text-red-400 text-right">
                   Cancel developer status?
                 </Text>

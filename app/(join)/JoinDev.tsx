@@ -12,15 +12,15 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Controller, useForm } from "react-hook-form";
 //@ts-ignore
 import { MaterialIcons } from "react-native-vector-icons";
-import { useData } from "@/hooks/useData";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
+import { useAppStore } from "@/hooks/useAppStore";
 interface Skills {
   skill: string;
 }
 
 interface FormType {
-  id:string
   name: string;
   avatar: string;
   bio: string;
@@ -32,16 +32,12 @@ interface FormType {
 
 const JoinDev = () => {
   const [currentSkill, setCurrentSkill] = useState("");
-  const { addDeveloper,checkIsDeveloper } = useData();
+  const { getData,addDeveloper} = useAppStore();
   const navigation = useNavigation();
   const [userId,setUserId] = useState("")
   const router = useRouter()
 
-  const resetApp = async () => {
-    await AsyncStorage.clear();
-    // Możesz też zresetować swój kontekst/Redux
-    router.replace('/'); // wróć do ekranu startowego
-  };
+
 
 
 
@@ -49,6 +45,7 @@ const JoinDev = () => {
     const getUserId = async () => {
       const userId = await AsyncStorage.getItem("userId");
       if (userId) {
+        console.log(userId)
         setUserId(userId);
       }
     };
@@ -64,7 +61,6 @@ const JoinDev = () => {
     watch,
   } = useForm<FormType>({
     defaultValues: {
-      id:userId,
       name: "",
       avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfDmN-o7HRXjcDKH-2hiQwDOkeJ8MQRgLO8w&s", 
       bio: "",
@@ -93,8 +89,9 @@ const JoinDev = () => {
   const onSubmit = (data: FormType) => {
     console.log("Submitted data:", data);
 
-    const isDeveloper = checkIsDeveloper(data.email)
+    
 
+    const isDeveloper = getData.find((user)=>user.email === data.email )
     if(isDeveloper){
       Alert.alert("Fails", "Your are already a developer!");
       return
@@ -102,7 +99,6 @@ const JoinDev = () => {
 
     addDeveloper(data);
     Alert.alert("Success", "Your profile has been created!");
-    resetApp()
     navigation.goBack();
   };
 

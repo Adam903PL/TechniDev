@@ -1,9 +1,10 @@
 import { SafeAreaView, Text, View, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useData } from "@/hooks/useData";
+
 //@ts-ignore
 import { MaterialIcons } from "react-native-vector-icons";
+import { useAppStore } from "@/hooks/useAppStore";
 
 type RouteParams = {
   id: string;
@@ -14,7 +15,7 @@ const Details = () => {
   const navigation = useNavigation();
   const id = route.params as RouteParams;
 
-  const { getData } = useData();
+  const { getData } = useAppStore();
   const user = getData.find((item) => item.id === id?.id);
 
   if (!id || !user) {
